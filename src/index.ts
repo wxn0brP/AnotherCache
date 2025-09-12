@@ -6,10 +6,10 @@ export interface CacheEntry<V> {
 export interface AnotherCacheOptions {
     ttl?: number;
     maxSize?: number;
-    cleanupInterval?: number; 
+    cleanupInterval?: number;
 }
 
-export class AnotherCache<V=any, K=string> {
+export class AnotherCache<V = any, K = string> {
     _store = new Map<K, CacheEntry<V>>();
     _ttl: number;
     _maxSize?: number;
@@ -63,10 +63,15 @@ export class AnotherCache<V=any, K=string> {
         return this._store.size;
     }
 
+    keys(): K[] {
+        this._cleanup();
+        return [...this._store.keys()];
+    }
+
     _cleanup(): void {
         const now = Date.now();
         for (const [key, entry] of this._store.entries()) {
-            if (entry.expiresAt <= now) 
+            if (entry.expiresAt <= now)
                 this._store.delete(key);
         }
     }
