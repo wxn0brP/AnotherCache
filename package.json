@@ -16,7 +16,7 @@
         "build": "tsc"
     },
     "devDependencies": {
-        "typescript": "^5.7.3"
+        "typescript": "*"
     },
     "files": [
         "dist"
