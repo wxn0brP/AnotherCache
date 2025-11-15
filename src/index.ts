@@ -81,11 +81,13 @@ export class AnotherCache<V = any, K = string> {
         this._cleanupLoopId = setTimeout(() => this._cleanup(), this._cleanupInterval);
     }
 
-    getOrFetch<R>(
+    getOrFetch(key: K, fetcher: () => Promise<V>, ttl?: number): Promise<V>;
+    getOrFetch(key: K, fetcher: () => V, ttl?: number): V;
+    getOrFetch(
         key: K,
-        fetcher: () => R extends Promise<infer U> ? Promise<U> : R,
+        fetcher: () => V | Promise<V>,
         ttl?: number
-    ): R extends Promise<any> ? Promise<V> : V {
+    ): V | Promise<V> {
         const cached = this.get(key);
         if (cached !== undefined) {
             return cached as any;
