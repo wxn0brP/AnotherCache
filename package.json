@@ -1,0 +1,33 @@
+{
+  "name": "@wxn0brp/ac",
+  "version": "0.0.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "Another Cache - A simple cache library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wxn0brP/AnotherCache.git"
+  },
+  "homepage": "https://github.com/wxn0brP/AnotherCache",
+  "author": "wxn0brP",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "typescript": "*"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "default": "./dist/*.js"
+    }
+  }
+}
