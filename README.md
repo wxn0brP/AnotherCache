@@ -58,29 +58,7 @@ const cache = new AnotherCache({
 
 ## API
 
-### `set(key: K, value: V, ttl?: number): void`
-
-Sets a value in the cache with an optional TTL.
-
-### `get(key: K): V | undefined`
-
-Gets a value from the cache. Returns `undefined` if the key does not exist or has expired.
-
-### `has(key: K): boolean`
-
-Checks if a key exists in the cache.
-
-### `delete(key: K): boolean`
-
-Deletes a key from the cache.
-
-### `clear(): void`
-
-Clears the entire cache.
-
-### `size(): number`
-
-Returns the number of entries in the cache.
+[API Reference](https://wxn0brp.github.io/AnotherCache/)
 
 ## License
 
