@@ -6,9 +6,9 @@
     "description": "Another Cache - A simple cache library",
     "repository": {
         "type": "git",
-        "url": "https://github.com/wxn0brp/AnotherCache.git"
+        "url": "https://github.com/wxn0brP/AnotherCache.git"
     },
-    "homepage": "https://github.com/wxn0brp/AnotherCache",
+    "homepage": "https://github.com/wxn0brP/AnotherCache",
     "author": "wxn0brP",
     "license": "MIT",
     "type": "module",
