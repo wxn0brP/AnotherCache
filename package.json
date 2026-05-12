@@ -16,6 +16,7 @@
         "build": "tsc"
     },
     "devDependencies": {
+        "@types/bun": "*",
         "typescript": "^5"
     },
     "files": [

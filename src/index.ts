@@ -7,31 +7,48 @@ export interface AnotherCacheOptions {
     ttl?: number;
     maxSize?: number;
     cleanupInterval?: number;
+    store?: HardStore;
+    storeTime?: number;
+    storeAutoMode?: boolean;
+}
+
+export interface HardStore {
+    save(data: Object): void;
+    read(): Object;
 }
 
 export class AnotherCache<V = any, K = string> {
     _store = new Map<K, CacheEntry<V>>();
-    _ttl: number;
-    _maxSize?: number;
-    _cleanupInterval?: number;
-    _cleanupLoopId?: number;
+    _cleanupLoopId?: ReturnType<typeof setInterval>;
+    _storeTime: number;
 
-    constructor(options?: AnotherCacheOptions) {
-        this._ttl = options?.ttl ?? 5 * 60_000;
-        this._maxSize = options?.maxSize;
-        this._cleanupInterval = options?.cleanupInterval ?? 15 * 60_000;
+    constructor(public options: AnotherCacheOptions = {}) {
+        this.options = {
+            ttl: 5 * 60_000,
+            cleanupInterval: 15 * 60_000,
+            storeTime: 5 * 60_000,
+            storeAutoMode: true,
+            ...options
+        }
+
+        this._storeTime = Date.now();
+        if (this.options.store && this.options.storeAutoMode) this.loadFromStore();
         this._cleanupLoop();
     }
 
     set(key: K, value: V, ttl?: number): void {
-        const expiresAt = Date.now() + (ttl ?? this._ttl);
+        const expiresAt = Date.now() + (ttl ?? this.options.ttl);
 
-        if (this._maxSize && this._store.size >= this._maxSize) {
+        if (this.options.maxSize && this._store.size >= this.options.maxSize) {
             const oldestKey = this._store.keys().next().value;
             if (oldestKey !== undefined) this._store.delete(oldestKey);
         }
 
         this._store.set(key, { value, expiresAt });
+
+        if (this.options.storeAutoMode && this.options.store)
+            if (Date.now() - this._storeTime >= this.options.storeTime)
+                this.saveToStore();
     }
 
     get(key: K): V | undefined {
@@ -70,15 +87,15 @@ export class AnotherCache<V = any, K = string> {
 
     _cleanup(): void {
         const now = Date.now();
-        for (const [key, entry] of this._store.entries()) {
+        for (const [key, entry] of this._store.entries())
             if (entry.expiresAt <= now)
                 this._store.delete(key);
-        }
     }
 
     _cleanupLoop(): void {
-        if (this._cleanupLoopId) clearTimeout(this._cleanupLoopId);
-        this._cleanupLoopId = setTimeout(() => this._cleanup(), this._cleanupInterval);
+        if (this._cleanupLoopId) clearInterval(this._cleanupLoopId);
+        this._cleanupLoopId = setInterval(() => this._cleanup(), this.options.cleanupInterval);
+        if (typeof this._cleanupLoopId === "object" && "unref" in this._cleanupLoopId) this._cleanupLoopId.unref();
     }
 
     getOrFetch(key: K, fetcher: () => Promise<V>, ttl?: number): Promise<V>;
@@ -89,9 +106,8 @@ export class AnotherCache<V = any, K = string> {
         ttl?: number
     ): V | Promise<V> {
         const cached = this.get(key);
-        if (cached !== undefined) {
+        if (cached !== undefined)
             return cached as any;
-        }
 
         const result = fetcher();
 
@@ -104,5 +120,19 @@ export class AnotherCache<V = any, K = string> {
             this.set(key as K, result as V, ttl);
             return result as any;
         }
+    }
+
+    loadFromStore() {
+        const data = this.options.store?.read() ?? {};
+        for (const [key, value] of Object.entries(data))
+            this._store.set(key as K, value as CacheEntry<V>);
+    }
+
+    saveToStore() {
+        this._cleanup();
+        this._storeTime = Date.now();
+        const data: any = {};
+        for (const [key, value] of this._store) data[key] = value;
+        this.options.store?.save(data);
     }
 }
